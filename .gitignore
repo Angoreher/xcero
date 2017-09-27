@@ -101,3 +101,9 @@ test_app
 
 project/media
 project/static
+
+# vim
+*.swp
+*.swn
+*.swa
+*.un~
