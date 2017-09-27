@@ -50,7 +50,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'CHANGE ME'
+SECRET_KEY = '+^h294oa(ekuq!28kcl1j4*$s1=-raah0r+d-0&6=dvi@&zx5y'
 
 ALLOWED_HOSTS = []
 
