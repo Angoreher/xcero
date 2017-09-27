@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+""" Administration classes for the stats application. """
+# standard library
+
+# django
 from django.contrib import admin
 
-# Register your models here.
+# models
+from .models import Stat
+
+
+@admin.register(Stat)
+class StatAdmin(admin.ModelAdmin):
+    pass
