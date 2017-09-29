@@ -50,7 +50,7 @@ class CardSet(BaseModel):
         blank=True,
     )
     border = models.CharField(
-        _('barder'),
+        _('border'),
         max_length=255,
         null=True,
         blank=True,
@@ -225,9 +225,8 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    flavor = models.CharField(
+    flavor = models.TextField(
         _('flavor'),
-        max_length=255,
         null=True,
         blank=True,
     )
@@ -473,6 +472,9 @@ class Archetype(BaseModel):
     colors = models.ManyToManyField(
         'Color',
         related_name='archetype_colors',
+    )
+    is_tribal = models.BooleanField(
+        default=False
     )
 
     def __str__(self):
