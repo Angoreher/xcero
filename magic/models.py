@@ -1,4 +1,5 @@
 # django
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -8,6 +9,7 @@ from base.models import BaseModel
 
 # utils
 from magic.utils import MagicClient
+from magic.utils import MagicMapper
 
 
 class CardSet(BaseModel):
@@ -100,22 +102,44 @@ class CardSet(BaseModel):
         return "{}, {}".format(self.name, self.code)
 
     @classmethod
-    def update_sets_data(cls):
-        magic_client = MagicClient()
-        card_sets = magic_client.get_sets()
+    def update_sets_data(cls, card_sets):
+        if hasattr(card_sets, "__iter__"):
+            for card_set in card_sets:
+                cls.update_set_from_external_object(card_set)
+        else:
+            card_set = card_sets
+            cls.update_set_from_external_object(card_set)
 
-        for card_set in card_sets:
+    @classmethod
+    def update_set_from_external_object(cls, card_set):
             _set, created = cls.objects.get_or_create(
                 name=card_set.name,
             )
 
+            attr_map_dict = MagicMapper.SET_TO_MODEL
+
             for attr, value in card_set.__dict__.items():
+                if attr in attr_map_dict:
+                    attr = attr_map_dict[attr]
+
                 _set.attr = value
 
             if not created:
                 _set.last_updated_at = timezone.now()
 
             _set.save()
+
+    @classmethod
+    def update_set(cls, set_code):
+        magic_client = MagicClient()
+        card_sets = magic_client.get_set_by_set_code(set_code)
+        cls.update_sets_data(card_sets)
+
+    @classmethod
+    def update_all_sets(cls):
+        magic_client = MagicClient()
+        card_sets = magic_client.get_sets()
+        cls.update_sets_data(card_sets)
 
 
 class Card(BaseModel):
@@ -157,39 +181,36 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    cmc = models.CharField(
+    cmc = models.IntegerField(
         _('converted mana cost'),
-        max_length=255,
         null=True,
         blank=True,
     )
-    colors = models.CharField(
-        _('colors'),
-        max_length=255,
-        null=True,
-        blank=True,
+    colors = models.ManyToManyField(
+        'Color',
+        related_name="card_colors",
+        verbose_name=_('colors'),
     )
-    color_identity = models.CharField(
-        _('color identity'),
-        max_length=255,
+    color_identity = JSONField(
         null=True,
         blank=True,
     )
     card_type = models.CharField(
-        _('type'),
+        _('card_type'),
         max_length=255,
         null=True,
         blank=True,
     )
-    card_supertypes = models.CharField(
-        _('supertypes'),
-        max_length=255,
+
+    card_types = JSONField(
         null=True,
         blank=True,
     )
-    card_subtypes = models.CharField(
-        _('subtypes'),
-        max_length=255,
+    card_supertypes = JSONField(
+        null=True,
+        blank=True,
+    )
+    card_subtypes = JSONField(
         null=True,
         blank=True,
     )
@@ -199,9 +220,8 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    text = models.CharField(
+    text = models.TextField(
         _('text'),
-        max_length=255,
         null=True,
         blank=True,
     )
@@ -223,15 +243,13 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    power = models.CharField(
+    power = models.IntegerField(
         _('power'),
-        max_length=255,
         null=True,
         blank=True,
     )
-    toughness = models.CharField(
+    toughness = models.IntegerField(
         _('toughness'),
-        max_length=255,
         null=True,
         blank=True,
     )
@@ -295,27 +313,21 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    rulings = models.CharField(
+    rulings = models.TextField(
         _('rulings'),
-        max_length=255,
         null=True,
         blank=True,
     )
-    foreign_names = models.CharField(
-        _('foreign_names'),
-        max_length=255,
+    foreign_names = JSONField(
         null=True,
         blank=True,
     )
-    printings = models.CharField(
-        _('printings'),
-        max_length=255,
+    printings = JSONField(
         null=True,
         blank=True,
     )
-    original_text = models.CharField(
+    original_text = models.TextField(
         _('original text'),
-        max_length=255,
         null=True,
         blank=True,
     )
@@ -325,9 +337,8 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    legalities = models.CharField(
+    legalities = JSONField(
         _('legalities'),
-        max_length=255,
         null=True,
         blank=True,
     )
@@ -337,9 +348,9 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    image_url = models.CharField(
+    image_url = models.URLField(
         _('image url'),
-        max_length=255,
+        max_length=1023,
         null=True,
         blank=True,
     )
@@ -373,25 +384,108 @@ class Card(BaseModel):
         return self.name
 
     @classmethod
-    def update_cards_data(cls):
-        magic_client = MagicClient()
-        cards = magic_client.get_cards()
-
+    def update_card_data(cls, cards):
+        attr_map_dict = MagicMapper.CARD_TO_MODEL
         for card in cards:
             _card, created = cls.objects.get_or_create(
                 name=card.name,
             )
 
             for attr, value in card.__dict__.items():
-                _card.attr = value
+                if attr in attr_map_dict:
+                    attr = attr_map_dict[attr]
 
-            try:
-                _set = CardSet.objects.get(code=card.set)
-                _card.card_set = _set
-            except CardSet.DoesNotExist:
-                raise
+                _attr = getattr(_card, attr)
+
+                if attr == 'colors':
+                    cls.set_colors_relations(
+                        _card, _attr, attr, value
+                    )
+                    continue
+
+                if attr == 'card_set':
+                    cls.set_card_set_relation(
+                        _card, _attr, attr, value
+                    )
+                    continue
+
+                setattr(_card, attr, value)
 
             if not created:
                 _card.last_updated_at = timezone.now()
 
             _card.save()
+
+    @classmethod
+    def set_colors_relations(cls, _card, _attr, attr, value):
+        if not value:
+            return
+
+        for color in value:
+            _color, created = Color.objects.get_or_create(
+                name=color,
+            )
+            if created:
+                _color.letter = color[0].capitalize()
+                _color.save()
+
+            _card.colors.add(_color)
+
+    @classmethod
+    def set_card_set_relation(cls, _card, _attr, attr, value):
+        try:
+            card_set = CardSet.objects.get(
+                code=value,
+            )
+            _card.card_set = card_set
+            _card.save()
+        except:
+            CardSet.update_set(value)
+            _set = CardSet.objects.get(code=value)
+            _card.card_set = _set
+            _card.save()
+
+    @classmethod
+    def update_all_cards(cls):
+        magic_client = MagicClient()
+        cards = magic_client.get_cards()
+        cls.update_card_data(cards)
+
+    @classmethod
+    def update_cards_from_set(cls, set_code):
+        magic_client = MagicClient()
+        cards = magic_client.get_cards_by_set_code(set_code)
+        cls.update_card_data(cards)
+
+    def update_card(self):
+        magic_client = MagicClient()
+        cards = magic_client.get_card_by_name(self.name)
+        self.update_card_data(cards)
+
+
+class Archetype(BaseModel):
+    name = models.CharField(
+        _('name'),
+        max_length=255,
+    )
+    colors = models.ManyToManyField(
+        'Color',
+        related_name='archetype_colors',
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Color(BaseModel):
+    name = models.CharField(
+        _('name'),
+        max_length=255,
+    )
+    letter = models.CharField(
+        _('letter'),
+        max_length=1,
+    )
+
+    def __str__(self):
+        return self.name

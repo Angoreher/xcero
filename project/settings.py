@@ -288,3 +288,7 @@ LOGGING = {
 CAN_LOGIN_AS = "base.utils.can_loginas"
 LOGOUT_URL = reverse_lazy('loginas-logout')
 LOGINAS_LOGOUT_REDIRECT_URL = reverse_lazy('admin:index')
+
+# vote values
+MIN_VOTE_VALUE = 1
+MAX_VOTE_VALUE = 10

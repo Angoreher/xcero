@@ -6,10 +6,15 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
+from django.conf import settings
 
 # models
 from base.models import BaseModel
 from users.models import User
+from magic.models import Card
+from magic.models import Archetype
 
 
 class Vote(BaseModel):
@@ -18,13 +23,22 @@ class Vote(BaseModel):
         User,
         verbose_name=_('user'),
     )
+    card = models.ForeignKey(
+        Card,
+        related_name='cards',
+        verbose_name=_('user'),
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
     # required fields
-    name = models.CharField(
-        _('name'),
-        max_length=30,
+
+    # optional fields
+    score = models.SmallIntegerField(
+        _('score'),
+        null=True,
         blank=True,
     )
-    # optional fields
 
     class Meta:
         verbose_name = _('vote')
@@ -34,10 +48,39 @@ class Vote(BaseModel):
         )
 
     def __str__(self):
-        # TODO this is an example str return, change it
-        return self.name
+        return "{}, {}, {}".format(
+            self.user,
+            self.card.name,
+            self.standalone,
+        )
 
     def get_absolute_url(self):
         """ Returns the canonical URL for the vote object """
-        # TODO this is an example, change it
         return reverse('vote_detail', args=(self.pk,))
+
+
+class ArchetypeVote(BaseModel):
+    # foreign keys
+    vote = models.ForeignKey(
+        'Vote',
+        related_name='archetype_votes',
+        verbose_name='archetype vote',
+    )
+    archetype = models.ForeignKey(
+        Archetype,
+        related_name="votes",
+        verbose_name=_("archetype votes"),
+    )
+    score = models.SmallIntegerField(
+        _('score'),
+        validators=[
+            MinValueValidator(settings.MIN_VOTE_VALUE),
+            MaxValueValidator(settings.MAX_VOTE_VALUE),
+        ]
+    )
+
+    def __str__(self):
+        return "{}, {}, {}".format(
+            self.vote,
+            self.archetype.name,
+        )
