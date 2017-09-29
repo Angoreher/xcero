@@ -83,4 +83,5 @@ class ArchetypeVote(BaseModel):
         return "{}, {}, {}".format(
             self.vote,
             self.archetype.name,
+            self.score,
         )
