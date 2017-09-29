@@ -243,13 +243,15 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    power = models.FloatField(
+    power = models.CharField(
         _('power'),
+        max_length=255,
         null=True,
         blank=True,
     )
-    toughness = models.FloatField(
+    toughness = models.CharField(
         _('toughness'),
+        max_length=255,
         null=True,
         blank=True,
     )
