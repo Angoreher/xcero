@@ -52,7 +52,12 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '+^h294oa(ekuq!28kcl1j4*$s1=-raah0r+d-0&6=dvi@&zx5y'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'xcero.cl',
+    'www.xcero.cl',
+    'gremio.cl',
+    'www.gremio.cl',
+]
 
 SITE_ID = 1
 
