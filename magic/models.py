@@ -243,12 +243,12 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
-    power = models.IntegerField(
+    power = models.FloatField(
         _('power'),
         null=True,
         blank=True,
     )
-    toughness = models.IntegerField(
+    toughness = models.FloatField(
         _('toughness'),
         null=True,
         blank=True,
