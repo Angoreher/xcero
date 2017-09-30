@@ -1,3 +1,4 @@
+from random import randint
 from mtgsdk import Card
 from mtgsdk import Set
 # from mtgsdk import Type
@@ -38,3 +39,8 @@ class MagicMapper(object):
         'id': 'external_id',
         'type': 'set_type',
     }
+
+
+def get_random_card(cards=None):
+    if cards:
+        return cards[randint(0, cards.count())]

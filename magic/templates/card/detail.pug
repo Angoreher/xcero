@@ -1,0 +1,29 @@
+extends base.pug
+// TODO replace card with the model name
+
+- load i18n
+
+block content
+  img(src="{{card.image_url}}")
+
+
+  div.form-group
+    div.col-md-offset-3.col-md-6.pull-right
+      form.model-form.form-horizontal(
+        method="post",
+        enctype="multipart/form-data",
+        role="form",
+        action="{% url 'vote_create' %}"
+      )
+        {% csrf_token %}
+        block top_fields
+          input(name="card_set_id", value="{{card.card_set_id}}", type="hidden")
+        block form_fields
+          {% include "includes/form.pug"%}
+
+        button.btn.btn-primary.js-submit-button(type="submit")
+          | {% block submit_button_value%}Votar{% endblock%}
+        block extra_buttons
+        a.btn.btn-danger.js-cancel-btn(
+          href="{% block cancel_button_url %}{{cancel_url}}{% endblock %}")
+          | {% block cancel_button_value%}Cancelar{% endblock%}

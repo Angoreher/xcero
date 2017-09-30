@@ -2,6 +2,7 @@
 """ Forms for the votes application. """
 # standard library
 
+
 # django
 from django import forms
 
@@ -16,7 +17,12 @@ class VoteForm(BaseModelForm):
     """
     Form Vote model.
     """
+    score = forms.IntegerField(required=True)
 
     class Meta:
         model = Vote
+        widgets = {
+            'user': forms.HiddenInput(),
+            'card': forms.HiddenInput(),
+        }
         exclude = ()

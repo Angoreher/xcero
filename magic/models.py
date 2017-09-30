@@ -1,8 +1,12 @@
+# standard library
+from datetime import datetime
+
 # django
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 # models
 from base.models import BaseModel
@@ -43,9 +47,8 @@ class CardSet(BaseModel):
         null=True,
         blank=True,
     )
-    release_date = models.CharField(
+    release_date = models.DateTimeField(
         _('release date'),
-        max_length=255,
         null=True,
         blank=True,
     )
@@ -73,9 +76,7 @@ class CardSet(BaseModel):
         null=True,
         blank=True,
     )
-    booster = models.CharField(
-        _('booster'),
-        max_length=255,
+    booster = JSONField(
         null=True,
         blank=True,
     )
@@ -97,6 +98,9 @@ class CardSet(BaseModel):
         null=True,
         blank=True,
     )
+
+    class Meta:
+        ordering = ['-release_date']
 
     def __str__(self):
         return "{}, {}".format(self.name, self.code)
@@ -122,12 +126,19 @@ class CardSet(BaseModel):
                 if attr in attr_map_dict:
                     attr = attr_map_dict[attr]
 
-                _set.attr = value
+                if attr == 'release_date':
+                    value = datetime.strptime(value, '%Y-%m-%d')
+
+                setattr(_set, attr, value)
 
             if not created:
                 _set.last_updated_at = timezone.now()
 
-            _set.save()
+            try:
+                _set.save()
+            except Exception as e:
+                print(_set.__dict__)
+                print(e)
 
     @classmethod
     def update_set(cls, set_code):
@@ -140,6 +151,10 @@ class CardSet(BaseModel):
         magic_client = MagicClient()
         card_sets = magic_client.get_sets()
         cls.update_sets_data(card_sets)
+
+    def get_absolute_url(self):
+        """ Returns the canonical URL for the card set object """
+        return reverse('card_set_detail', args=(self.pk,))
 
 
 class Card(BaseModel):

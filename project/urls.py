@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^accounts/', include('users.urls')),
     url(r'^stats/', include('stats.urls')),
     url(r'^votes/', include('votes.urls')),
+    url(r'^magic/', include('magic.urls')),
     url(r'^$', base_views.index, name='home'),
 ]
 

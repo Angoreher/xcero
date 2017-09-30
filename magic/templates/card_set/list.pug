@@ -1,0 +1,29 @@
+extends base.pug
+// TODO replace card_set with the model name
+
+- load i18n
+
+block content
+
+  table.table.table-bordered.table-hover
+    thead
+      tr
+        th Code
+        th {% trans 'name'|capfirst %}
+        th Vote
+
+    tbody
+      for card_set in object_list
+        tr
+          td
+            | {{card_set.code}}
+          td
+            | {{card_set.name}}
+          td
+            a(href="{% url 'card_set_vote_redirect' card_set.id %}")
+              | que me lleve a votar oe
+
+
+
+
+  {% include 'includes/pagination.pug' %}

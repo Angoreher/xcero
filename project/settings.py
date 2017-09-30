@@ -53,6 +53,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 SECRET_KEY = '+^h294oa(ekuq!28kcl1j4*$s1=-raah0r+d-0&6=dvi@&zx5y'
 
 ALLOWED_HOSTS = [
+    'localhost',
     'xcero.cl',
     'www.xcero.cl',
     'gremio.cl',

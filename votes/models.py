@@ -21,6 +21,7 @@ class Vote(BaseModel):
     # foreign keys
     user = models.ForeignKey(
         User,
+        related_name="votes",
         verbose_name=_('user'),
     )
     card = models.ForeignKey(
@@ -51,8 +52,19 @@ class Vote(BaseModel):
         return "{}, {}, {}".format(
             self.user,
             self.card.name,
-            self.standalone,
+            self.score,
         )
+
+    @classmethod
+    def get_not_voted_cards(cls, user, card_set_id):
+        """ Returns a card that has not been voted by a certain user """
+        user_card_set_votes_id = user.votes.filter(
+            card__card_set_id=card_set_id,
+        ).values_list('card__id', flat=True)
+
+        return Card.objects.filter(
+            card_set_id=card_set_id,
+        ).exclude(pk__in=user_card_set_votes_id)
 
     def get_absolute_url(self):
         """ Returns the canonical URL for the vote object """

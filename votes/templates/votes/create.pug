@@ -5,5 +5,5 @@ extends form.pug
 
 block breadcrumbs
   li
-    a(href="{% url 'MODEL_list' %}")
-      | {{opts.verbose_name_plural.capitalize}}
+    a(href="{% url 'vote_list' %}")
+      | {{opts.verbose_name_plural.capfirst}}

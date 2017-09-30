@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     url(
         r'^$',
-        views.VoteListView.as_view(),
+        views.VoteRedirectView.as_view(),
         name='vote_list'
     ),
     url(
