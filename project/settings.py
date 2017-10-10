@@ -244,12 +244,11 @@ NPM_FILE_PATTERNS = {
 }
 
 # default keys, replace with somethign your own
-RECAPTCHA_PUBLIC_KEY = '6LcqFiMUAAAAAF5emCxyuzFJsD2tn2C84MoHc-Va'
-RECAPTCHA_PRIVATE_KEY = '6LcqFiMUAAAAAP12IhWi3v06FjQ0Vk8_vCRfFMMt'
+RECAPTCHA_PUBLIC_KEY = '6LdL8TMUAAAAAEOrft8bMMd3dNDmG5pnpNIFavBT'
+RECAPTCHA_PRIVATE_KEY = '6LdL8TMUAAAAAFw0-40kETIXQFH1y0w8SOWazDyj'
 NOCAPTCHA = True
-# un comment when we start using only SSL
-# RECAPTCHA_USE_SSL = True
-#
+RECAPTCHA_USE_SSL = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
