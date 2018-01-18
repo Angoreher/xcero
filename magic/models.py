@@ -473,6 +473,14 @@ class Card(BaseModel):
         cards = magic_client.get_cards_by_set_code(set_code)
         cls.update_card_data(cards)
 
+    @classmethod
+    def get_by_types(cls, search_string):
+        """
+        Returns a QuerySet with all cards that contain the
+        search_string in their card_type field.
+        """
+        return cls.objects.filter(card_type__contains=search_string)
+
     def update_card(self):
         magic_client = MagicClient()
         cards = magic_client.get_card_by_name(self.name)
