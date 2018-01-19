@@ -25,6 +25,21 @@ class CardSetListView(BaseListView):
     model = CardSet
     template_name = 'card_set/list.pug'
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(
+            CardSetListView, self
+        ).get_context_data(*args, **kwargs)
+
+        standard_sets = []
+
+        for card_set in self.get_queryset():
+            for _format in card_set.formats.all():
+                if _format.name == 'Standard':
+                    standard_sets.append(card_set)
+
+        context['standard_sets'] = standard_sets
+        return context
+
 
 class CardSetDetailView(BaseDetailView):
     """

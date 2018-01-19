@@ -516,3 +516,17 @@ class Color(BaseModel):
 
     def __str__(self):
         return self.name
+
+
+class Format(BaseModel):
+    name = models.CharField(
+        max_length=100,
+    )
+
+    card_sets = models.ManyToManyField(
+        CardSet,
+        related_name='formats',
+    )
+
+    def __str__(self):
+        return self.name
