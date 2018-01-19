@@ -58,6 +58,7 @@ ALLOWED_HOSTS = [
     'www.xcero.cl',
     'gremio.cl',
     'www.gremio.cl',
+    '104.131.22.164',
 ]
 
 SITE_ID = 1
