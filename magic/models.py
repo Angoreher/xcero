@@ -455,7 +455,7 @@ class Card(BaseModel):
             )
             _card.card_set = card_set
             _card.save()
-        except:
+        except CardSet.DoesNotExist:
             CardSet.update_set(value)
             _set = CardSet.objects.get(code=value)
             _card.card_set = _set
