@@ -23,6 +23,9 @@ div.navbar.navbar-inverse.navbar-fixed-top
         ul.nav.navbar-nav
           li
             a(href="{% url 'card_set_list' %}") Magic
+        ul.nav.navbar-nav
+          li
+            a(href="{% url 'doto' %}") Doto
 
       ul.nav.navbar-nav.navbar-right
         {% if user.is_authenticated %}
