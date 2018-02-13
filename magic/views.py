@@ -1,5 +1,6 @@
 # django
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 
 # models
 from magic.models import Card
@@ -16,6 +17,16 @@ from base.views import BaseRedirectView
 
 # utils
 from magic.utils import get_random_card
+
+
+def doto_redirect(request):
+    """
+    Go loco, go DOTO
+    """
+    return redirect(
+        'https://hangouts.google.com/'
+        + 'call/tsd7um3utverjbu4qzkkajfkeye?no_rd'
+    )
 
 
 class CardSetListView(BaseListView):

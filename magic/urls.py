@@ -23,5 +23,10 @@ urlpatterns = [
         r'^card-set/(?P<pk>[\d]+)/vote$',
         views.CardSetVoteRedirectView.as_view(),
         name='card_set_vote_redirect',
-    )
+    ),
+    url(
+        r'^doto/$',
+        views.doto_redirect,
+        name='doto',
+    ),
 ]

@@ -1,0 +1,51 @@
+extends base.pug
+
+- load i18n
+
+block content
+
+  h1 {{card_set.name}}
+
+  h2 {% trans 'view card list'|capfirst %}
+
+  h3 {% trans 'check for average p/t'|capfirst %}
+  form
+    select(name='colors')
+      option(value='vlu')
+        | azul 
+      option(value='grin' selected)
+        | verde 
+      option(value='red')
+        | rojo
+
+    br
+
+    input(name='cmc', type='number', placeholder='asd')
+
+    br
+
+    button(type='submit')
+      | enviar
+
+
+  if card_set_form
+    div
+      {% if form.errors %}
+      {% for error in form.non_field_errors %}
+      div.alert.alert-error
+        | {{ error }}
+      {% endfor %}
+      {% endif %}
+
+      {% include "includes/form.pug" with form=form%}
+
+      div.form-group
+        div.row
+          .col-sm-6.text-right
+            .btn-group
+              block buttons
+                button.btn.btn-primary.js-submit-button(type="submit")
+                  | {% block submit_button_value%}Guardar{% endblock%}
+                a.btn.btn-danger.js-cancel-btn(
+                  href="{% block cancel_button_url %}{{cancel_url}}{% endblock %}")
+                  | {% block cancel_button_value%}Cancelar{% endblock%}

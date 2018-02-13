@@ -4,9 +4,12 @@ from datetime import datetime
 # django
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models import Avg
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 # models
 from base.models import BaseModel
@@ -140,6 +143,39 @@ class CardSet(BaseModel):
                 print(_set.__dict__)
                 print(e)
 
+    def get_average_power_and_toughness(self, colors=None, cmc=None):
+        """
+        returns a tuple with the average p/t for a set.
+        if color or cmc where given, they will be taken into account
+        when calculating the avg p/t
+        """
+        kwargs = {
+            'card_set': self,
+        }
+
+        if colors:
+            # transform all string letters in colors to color object
+            color_list = []
+            for color in colors:
+                if type(color) == str:
+                    try:
+                        color = Color.objects.get(letter=color)
+                    except Color.DoesNotExist:
+                        continue
+                color_list.append(color)
+
+            kwargs['colors__in'] = color_list
+
+        if cmc:
+            kwargs['cmc'] = cmc
+
+        cards_average = Card.objects.filter(**kwargs).aggregate(
+            Avg('int_power'),
+            Avg('int_toughness'),
+        ).values()
+
+        return tuple(cards_average)
+
     @classmethod
     def update_set(cls, set_code):
         magic_client = MagicClient()
@@ -263,9 +299,19 @@ class Card(BaseModel):
         null=True,
         blank=True,
     )
+    int_power = models.IntegerField(
+        _('integer power'),
+        null=True,
+        blank=True,
+    )
     toughness = models.CharField(
         _('toughness'),
         max_length=255,
+        null=True,
+        blank=True,
+    )
+    int_toughness = models.IntegerField(
+        _('integer toughness'),
         null=True,
         blank=True,
     )
@@ -514,6 +560,13 @@ class Color(BaseModel):
         max_length=1,
     )
 
+    @classmethod
+    def get_colors_by_letter(cls, letter_list):
+        """
+        returns a color queryset obtained by a list of color letter
+        """
+        return cls.objects.filter(letter__in=letter_list)
+
     def __str__(self):
         return self.name
 
@@ -530,3 +583,17 @@ class Format(BaseModel):
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_save, sender=Card)
+def card_pre_save(sender, instance, **kwargs):
+    if instance.power and not instance.int_power:
+        try:
+            instance.int_power = int(instance.power)
+        except ValueError:
+            pass
+    if instance.toughness and not instance.int_toughness:
+        try:
+            instance.int_toughness = int(instance.toughness)
+        except ValueError:
+            pass

@@ -1,5 +1,4 @@
 extends base.pug
-// TODO replace card_set with the model name
 
 - load i18n
 
@@ -9,9 +8,10 @@ block content
   table.table.table-bordered.table-hover
     thead
       tr
-        th Code
+        th {% trans 'code'|capfirst %}
         th {% trans 'name'|capfirst %}
-        th Vote
+        th {% trans 'details'|capfirst %}
+        th {% trans 'vote'|capfirst %}
 
     tbody
       for card_set in standard_sets
@@ -21,6 +21,9 @@ block content
           td
             | {{card_set.name}}
           td
+            a(href="{% url 'card_set_detail' card_set.id %}")
+              | {% trans 'view set details'|capfirst %}
+          td
             a(href="{% url 'card_set_vote_redirect' card_set.id %}")
               | {% trans 'vote this set'|capfirst %}
 
@@ -28,9 +31,10 @@ block content
   table.table.table-bordered.table-hover
     thead
       tr
-        th Code
+        th {% trans 'code'|capfirst %}
         th {% trans 'name'|capfirst %}
-        th Vote
+        th {% trans 'details'|capfirst %}
+        th {% trans 'vote'|capfirst %}
 
     tbody
       for card_set in object_list
@@ -39,6 +43,9 @@ block content
             | {{card_set.code}}
           td
             | {{card_set.name}}
+          td
+            a(href="{% url 'card_set_detail' card_set.id %}")
+              | {% trans 'view set details'|capfirst %}
           td
             a(href="{% url 'card_set_vote_redirect' card_set.id %}")
               | {% trans 'vote this set'|capfirst %}
