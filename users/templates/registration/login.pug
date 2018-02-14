@@ -53,10 +53,6 @@ block content
             .col-md-offset-2.col-sm-10
               a(href="{% url 'password_reset' %}")
                 | {% trans 'Forgotten your password?' %}
-          .form-group
-            .col-md-offset-2.col-sm-10
-              a(href="{% url 'register' %}")
-                | {% trans 'New? Register here.' %}
         .form-group
           .col-sm-12.text-right
             input.btn.btn-primary(type='submit', value="{% trans 'Log in' %}")
